@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il binomio fantastico</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 28px 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    background: linear-gradient(135deg, #edf4ff, #fff3e4);
+    color: #263653;
+  }
+  main {
+    width: min(680px, 100%); background: white; border-radius: 28px;
+    padding: 32px 24px; text-align: center;
+    box-shadow: 0 12px 35px rgba(47, 67, 104, .13);
+  }
+  .sparkles { font-size: 42px; margin-bottom: 8px; }
+  h1 { margin: 0; font-size: clamp(27px, 6vw, 40px); color: #405b91; }
+  .intro { color: #68758d; margin: 12px 0 28px; line-height: 1.5; }
+  .words { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .word-card {
+    min-height: 145px; border-radius: 20px; padding: 18px 10px;
+    display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  }
+  .word-card:first-child { background: #e8f1ff; color: #254c80; }
+  .word-card:last-child { background: #fff0dc; color: #89551d; }
+  .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: bold; }
+  .word { font-size: clamp(23px, 5vw, 34px); font-weight: 800; overflow-wrap: anywhere; }
+  button {
+    border: 0; border-radius: 999px; cursor: pointer;
+    font: inherit; font-weight: bold; transition: transform .12s, filter .12s;
+  }
+  button:hover { filter: brightness(1.04); }
+  button:active { transform: scale(.98); }
+  #generate {
+    width: 100%; margin: 22px 0 12px; padding: 17px 14px;
+    background: #526da8; color: white; font-size: 18px;
+    box-shadow: 0 5px 12px rgba(82,109,168,.2);
+  }
+  #challenge {
+    display: none; background: #f5f7fb; border: 1px solid #e1e6f0;
+    border-radius: 18px; padding: 18px; margin-top: 12px; line-height: 1.5;
+  }
+  #challenge strong { display: block; font-size: 19px; margin-bottom: 7px; }
+  #reset {
+    margin: 10px 0 24px; padding: 8px 12px; color: #68758d;
+    background: transparent; text-decoration: underline;
+  }
+  .word-bank { border-top: 1px solid #e8ebf1; padding-top: 20px; }
+  .word-bank h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #68758d; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .chip { background: #f5f7fb; border: 1px solid #e3e8f1; border-radius: 99px; padding: 7px 12px; font-size: 13px; }
+  @media (max-width: 420px) {
+    main { padding: 25px 16px; }
+    .word-card { min-height: 120px; }
+    #generate { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="sparkles">✨ 📖 ✨</div>
+  <h1>Il binomio fantastico</h1>
+  <p class="intro">Due parole a caso, mille storie da inventare!<br>Clicca sul pulsante e lascia volare la fantasia.</p>
+
+  <section class="words" aria-live="polite" aria-label="Le due parole estratte">
+    <div class="word-card">
+      <span class="label">Prima parola</span>
+      <span class="word" id="word-one">?</span>
+    </div>
+    <div class="word-card">
+      <span class="label">Seconda parola</span>
+      <span class="word" id="word-two">?</span>
+    </div>
+  </section>
+
+  <button id="generate">🎲 Crea un binomio fantastico!</button>
+  <section id="challenge">
+    <strong>🚀 Ora libera la fantasia!</strong>
+    Inventa una storia in cui le due parole diventano protagoniste.
+    Che cosa potrebbe succedere? Dove? E come si incontrano?
+  </section>
+  <button id="reset">Ricomincia</button>
+
+  <section class="word-bank">
+    <h2>Le parole a disposizione</h2>
+    <div class="chips" id="word-list"></div>
+  </section>
+</main>
+<script>
+const parole = [
+  "frecce", "ciliegie", "valigie", "facce", "rocce", "spiagge",
+  "grigie", "arance", "piogge", "frange", "bucce", "camicie"
+];
+
+const prima = document.getElementById("word-one");
+const seconda = document.getElementById("word-two");
+const sfida = document.getElementById("challenge");
+const elenco = document.getElementById("word-list");
+let ultimaCoppia = [];
+
+parole.forEach(parola => {
+  const elemento = document.createElement("span");
+  elemento.className = "chip";
+  elemento.textContent = parola;
+  elenco.appendChild(elemento);
+});
+
+document.getElementById("generate").addEventListener("click", () => {
+  let disponibili = parole.filter(p => !ultimaCoppia.includes(p));
+  if (disponibili.length < 2) {
+    ultimaCoppia = [];
+    disponibili = [...parole];
+  }
+  // Estrazione casuale di due parole diverse.
+  for (let i = disponibili.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [disponibili[i], disponibili[j]] = [disponibili[j], disponibili[i]];
+  }
+  ultimaCoppia = disponibili.slice(0, 2);
+  prima.textContent = ultimaCoppia[0];
+  seconda.textContent = ultimaCoppia[1];
+  sfida.style.display = "block";
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  prima.textContent = "?";
+  seconda.textContent = "?";
+  sfida.style.display = "none";
+});
+</script>
+</body>
+</html>
